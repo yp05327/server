@@ -2389,8 +2389,7 @@ class UsersControllerTest extends \Test\TestCase {
 			],
 			Http::STATUS_FORBIDDEN
 		);
-		$controller = $this->getController(true);
-		$response = $controller->disable('abc');
+		$response = $this->getController(true)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2432,8 +2431,7 @@ class UsersControllerTest extends \Test\TestCase {
 			],
 			Http::STATUS_FORBIDDEN
 		);
-		$controller = $this->getController(false);
-		$response = $controller->disable('abc');
+		$response = $this->getController(false)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2465,8 +2463,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(true);
-		$response = $controller->disable('abc');
+		$response = $this->getController(true)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2503,8 +2500,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(false);
-		$response = $controller->disable('abc');
+		$response = $this->getController(false)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2542,8 +2538,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(true);
-		$response = $controller->disable('abc');
+		$response = $this->getController(true)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2585,8 +2580,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(false);
-		$response = $controller->disable('abc');
+		$response = $this->getController(false)->disable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2609,8 +2603,7 @@ class UsersControllerTest extends \Test\TestCase {
 			],
 			Http::STATUS_FORBIDDEN
 		);
-		$controller = $this->getController(true);
-		$response = $controller->enable('abc');
+		$response = $this->getController(true)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2652,8 +2645,7 @@ class UsersControllerTest extends \Test\TestCase {
 			],
 			Http::STATUS_FORBIDDEN
 		);
-		$controller = $this->getController(false);
-		$response = $controller->enable('abc');
+		$response = $this->getController(false)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2685,8 +2677,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(true);
-		$response = $controller->enable('abc');
+		$response = $this->getController(true)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2723,8 +2714,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(false);
-		$response = $controller->enable('abc');
+		$response = $this->getController(false)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2761,8 +2751,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(true);
-		$response = $controller->enable('abc');
+		$response = $this->getController(true)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 
@@ -2792,6 +2781,7 @@ class UsersControllerTest extends \Test\TestCase {
 			->method('isUserAccessible')
 			->will($this->returnValue(true));
 		$this->groupManager
+			->expects($this->once())
 			->method('getSubAdmin')
 			->willReturn($subadmin);
 
@@ -2804,8 +2794,7 @@ class UsersControllerTest extends \Test\TestCase {
 				],
 			]
 		);
-		$controller = $this->getController(false);
-		$response = $controller->enable('abc');
+		$response = $this->getController(false)->enable('abc');
 		$this->assertEquals($expectedResponse, $response);
 	}
 }
