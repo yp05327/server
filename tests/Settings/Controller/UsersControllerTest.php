@@ -2475,7 +2475,7 @@ class UsersControllerTest extends \Test\TestCase {
 			->method('getUID')
 			->will($this->returnValue('def'));
 		$this->userSession
-			->expects($this->exactly(2))
+			->expects($this->exactly(1))
 			->method('getUser')
 			->will($this->returnValue($user));
 		$this->userManager
@@ -2484,14 +2484,9 @@ class UsersControllerTest extends \Test\TestCase {
 			->with('abc')
 			->willReturn(null);
 
-		$subadmin = $this->createMock('\OC\SubAdmin');
-		$subadmin->expects($this->once())
-			->method('isUserAccessible')
-			->will($this->returnValue(true));
 		$this->groupManager
-			->expects($this->once())
-			->method('getSubAdmin')
-			->willReturn($subadmin);
+			->expects($this->never())
+			->method('getSubAdmin');
 
 		$expectedResponse = new DataResponse(
 			[
@@ -2691,7 +2686,7 @@ class UsersControllerTest extends \Test\TestCase {
 			->method('getUID')
 			->will($this->returnValue('def'));
 		$this->userSession
-			->expects($this->exactly(2))
+			->expects($this->exactly(1))
 			->method('getUser')
 			->will($this->returnValue($user));
 		$this->userManager
@@ -2700,14 +2695,9 @@ class UsersControllerTest extends \Test\TestCase {
 			->with('abc')
 			->willReturn(null);
 
-		$subadmin = $this->createMock('\OC\SubAdmin');
-		$subadmin->expects($this->once())
-			->method('isUserAccessible')
-			->will($this->returnValue(true));
 		$this->groupManager
-			->expects($this->once())
-			->method('getSubAdmin')
-			->willReturn($subadmin);
+			->expects($this->never())
+			->method('getSubAdmin');
 
 		$expectedResponse = new DataResponse(
 			[
