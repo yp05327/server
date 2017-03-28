@@ -1482,6 +1482,52 @@ function initCore() {
 		});
 	}
 
+	var resizeMenu = function() {
+		var appList = $('#appmenu li');
+		var appCount = Math.floor($('#appmenu').width()/44);
+		// show a maximum of 8 apps
+		if(appCount > 8) {
+			appCount = 8;
+		}
+		// move at least 2 entries to the more apps menu
+		if(appCount < appList.length) {
+			appCount = appCount - 2;
+		}
+
+		$('#more-apps a').removeClass('active');
+		var lastShownApp;
+		for (var k = 0; k < appList.length-1; k++) {
+			var name = $(appList[k]).data('id');
+			if(k < appCount) {
+				$(appList[k]).removeClass('hidden');
+				$('#apps li[data-id=' + name + ']').addClass('in-header');
+				lastShownApp = appList[k];
+			} else {
+				$(appList[k]).addClass('hidden');
+				$('#apps li[data-id=' + name + ']').removeClass('in-header');
+				// move active app to last position if it is active
+				if(appCount > 0 && $(appList[k]).children('a').hasClass('active')) {
+					$(lastShownApp).addClass('hidden');
+					$('#apps li[data-id=' + $(lastShownApp).data('id') + ']').removeClass('in-header');
+					$(appList[k]).removeClass('hidden');
+					$('#apps li[data-id=' + name + ']').addClass('in-header');
+				}
+			}
+		}
+
+		// always show active app
+
+		// show/hide more apps icon
+		if($('#apps li:not(.in-header)').length === 0) {
+			$('#more-apps').hide();
+			$('#navigation').hide();
+		} else {
+			$('#more-apps').show();
+		}
+	};
+	$(window).resize(resizeMenu);
+	resizeMenu();
+
 	// just add snapper for logged in users
 	if($('#app-navigation').length && !$('html').hasClass('lte9')) {
 
