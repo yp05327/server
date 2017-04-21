@@ -73,8 +73,6 @@ class OC_API {
 	 * api actions
 	 */
 	protected static $actions = array();
-	private static $logoutRequired = false;
-	private static $isLoggedIn = false;
 
 	/**
 	 * registers an api call
@@ -104,57 +102,6 @@ class OC_API {
 			OC::$server->getRouter()->useCollection($oldCollection);
 		}
 		self::$actions[$name][] = array('app' => $app, 'action' => $action, 'authlevel' => $authLevel);
-	}
-
-	/**
-	 * handles an api call
-	 * @param array $parameters
-	 */
-	public static function call($parameters) {
-		$request = \OC::$server->getRequest();
-		$method = $request->getMethod();
-
-		// Prepare the request variables
-		if($method === 'PUT') {
-			$parameters['_put'] = $request->getParams();
-		} else if($method === 'DELETE') {
-			$parameters['_delete'] = $request->getParams();
-		}
-		$name = $parameters['_route'];
-		// Foreach registered action
-		$responses = array();
-		foreach(self::$actions[$name] as $action) {
-			// Check authentication and availability
-			if(!self::isAuthorised($action)) {
-				$responses[] = array(
-					'app' => $action['app'],
-					'response' => new OC_OCS_Result(null, API::RESPOND_UNAUTHORISED, 'Unauthorised'),
-					'shipped' => OC_App::isShipped($action['app']),
-					);
-				continue;
-			}
-			if(!is_callable($action['action'])) {
-				$responses[] = array(
-					'app' => $action['app'],
-					'response' => new OC_OCS_Result(null, API::RESPOND_NOT_FOUND, 'Api method not found'),
-					'shipped' => OC_App::isShipped($action['app']),
-					);
-				continue;
-			}
-			// Run the action
-			$responses[] = array(
-				'app' => $action['app'],
-				'response' => call_user_func($action['action'], $parameters),
-				'shipped' => OC_App::isShipped($action['app']),
-				);
-		}
-		$response = self::mergeResponses($responses);
-		$format = self::requestedFormat();
-		if (self::$logoutRequired) {
-			\OC::$server->getUserSession()->logout();
-		}
-
-		self::respond($response, $format);
 	}
 
 	/**
@@ -251,106 +198,6 @@ class OC_API {
 		}
 
 		return new OC_OCS_Result($data, $statusCode, $statusMessage, $header);
-	}
-
-	/**
-	 * authenticate the api call
-	 * @param array $action the action details as supplied to OC_API::register()
-	 * @return bool
-	 */
-	private static function isAuthorised($action) {
-		$level = $action['authlevel'];
-		switch($level) {
-			case API::GUEST_AUTH:
-				// Anyone can access
-				return true;
-			case API::USER_AUTH:
-				// User required
-				return self::loginUser();
-			case API::SUBADMIN_AUTH:
-				// Check for subadmin
-				$user = self::loginUser();
-				if(!$user) {
-					return false;
-				} else {
-					$userObject = \OC::$server->getUserSession()->getUser();
-					if($userObject === null) {
-						return false;
-					}
-					$isSubAdmin = \OC::$server->getGroupManager()->getSubAdmin()->isSubAdmin($userObject);
-					$admin = OC_User::isAdminUser($user);
-					if($isSubAdmin || $admin) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			case API::ADMIN_AUTH:
-				// Check for admin
-				$user = self::loginUser();
-				if(!$user) {
-					return false;
-				} else {
-					return OC_User::isAdminUser($user);
-				}
-			default:
-				// oops looks like invalid level supplied
-				return false;
-		}
-	}
-
-	/**
-	 * http basic auth
-	 * @return string|false (username, or false on failure)
-	 */
-	private static function loginUser() {
-		if(self::$isLoggedIn === true) {
-			return \OC_User::getUser();
-		}
-
-		// reuse existing login
-		$loggedIn = \OC::$server->getUserSession()->isLoggedIn();
-		if ($loggedIn === true) {
-			if (\OC::$server->getTwoFactorAuthManager()->needsSecondFactor(\OC::$server->getUserSession()->getUser())) {
-				// Do not allow access to OCS until the 2FA challenge was solved successfully
-				return false;
-			}
-			$ocsApiRequest = isset($_SERVER['HTTP_OCS_APIREQUEST']) ? $_SERVER['HTTP_OCS_APIREQUEST'] === 'true' : false;
-			if ($ocsApiRequest) {
-
-				// initialize the user's filesystem
-				\OC_Util::setupFS(\OC_User::getUser());
-				self::$isLoggedIn = true;
-
-				return OC_User::getUser();
-			}
-			return false;
-		}
-
-		// basic auth - because OC_User::login will create a new session we shall only try to login
-		// if user and pass are set
-		$userSession = \OC::$server->getUserSession();
-		$request = \OC::$server->getRequest();
-		try {
-			$loginSuccess = $userSession->tryTokenLogin($request);
-			if (!$loginSuccess) {
-				$loginSuccess = $userSession->tryBasicAuthLogin($request, \OC::$server->getBruteForceThrottler());
-			}
-		} catch (\OC\User\LoginException $e) {
-			return false;
-		}
-	
-		if ($loginSuccess === true) {
-			self::$logoutRequired = true;
-
-			// initialize the user's filesystem
-			\OC_Util::setupFS(\OC_User::getUser());
-			self::$isLoggedIn = true;
-
-			return \OC_User::getUser();
-		}
-
-		return false;
 	}
 
 	/**
