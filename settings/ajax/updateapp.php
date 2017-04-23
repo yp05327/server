@@ -42,9 +42,11 @@ $config->setSystemValue('maintenance', true);
 try {
 	$installer = new \OC\Installer(
 		\OC::$server->getAppFetcher(),
+		\OC::$server->getAppManager(),
 		\OC::$server->getHTTPClientService(),
 		\OC::$server->getTempManager(),
-		\OC::$server->getLogger()
+		\OC::$server->getLogger(),
+		\OC::$server->getConfig()
 	);
 	$result = $installer->updateAppstoreApp($appId);
 	$config->setSystemValue('maintenance', false);

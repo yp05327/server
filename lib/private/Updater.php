@@ -441,7 +441,8 @@ class Updater extends BasicEmitter {
 					\OC::$server->getAppFetcher(),
 					\OC::$server->getHTTPClientService(),
 					\OC::$server->getTempManager(),
-					$this->log
+					$this->log,
+					\OC::$server->getConfig()
 				);
 				if (Installer::isUpdateAvailable($app, \OC::$server->getAppFetcher())) {
 					$this->emit('\OC\Updater', 'upgradeAppStoreApp', [$app]);

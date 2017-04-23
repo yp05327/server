@@ -364,9 +364,11 @@ class OC_App {
 		// Check if app is already downloaded
 		$installer = new Installer(
 			\OC::$server->getAppFetcher(),
+			\OC::$server->getAppManager(),
 			\OC::$server->getHTTPClientService(),
 			\OC::$server->getTempManager(),
-			\OC::$server->getLogger()
+			\OC::$server->getLogger(),
+			\OC::$server->getConfig()
 		);
 		$isDownloaded = $installer->isDownloaded($appId);
 
@@ -426,9 +428,11 @@ class OC_App {
 
 		$installer = new Installer(
 			\OC::$server->getAppFetcher(),
+			\OC::$server->getAppManager(),
 			\OC::$server->getHTTPClientService(),
 			\OC::$server->getTempManager(),
-			\OC::$server->getLogger()
+			\OC::$server->getLogger(),
+			\OC::$server->getConfig()
 		);
 		return $installer->removeApp($app);
 	}

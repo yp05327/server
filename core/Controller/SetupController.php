@@ -28,6 +28,7 @@
 
 namespace OC\Core\Controller;
 
+use OC\App\AppStore\Bundles\BundleFetcher;
 use OC\Setup;
 
 class SetupController {
@@ -35,13 +36,18 @@ class SetupController {
 	protected $setupHelper;
 	/** @var string */
 	private $autoConfigFile;
+	/** @var BundleFetcher */
+	private $bundleFetcher;
 
 	/**
 	 * @param Setup $setupHelper
+	 * @param BundleFetcher $bundleFetcher
 	 */
-	function __construct(Setup $setupHelper) {
+	public function __construct(Setup $setupHelper,
+						 BundleFetcher $bundleFetcher) {
 		$this->autoConfigFile = \OC::$configDir.'autoconfig.php';
 		$this->setupHelper = $setupHelper;
+		$this->bundleFetcher = $bundleFetcher;
 	}
 
 	/**
@@ -87,7 +93,9 @@ class SetupController {
 			'dbtablespace' => '',
 			'dbhost' => 'localhost',
 			'dbtype' => '',
+			'bundles' => $this->bundleFetcher->getBundles(),
 		);
+
 		$parameters = array_merge($defaults, $post);
 
 		\OC_Util::addVendorScript('strengthify/jquery.strengthify');

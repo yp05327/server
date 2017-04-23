@@ -41,6 +41,7 @@ namespace OC;
 
 use bantu\IniGetWrapper\IniGetWrapper;
 use Exception;
+use OC\App\AppStore\Bundles\BundleFetcher;
 use OCP\Defaults;
 use OCP\IL10N;
 use OCP\ILogger;
@@ -63,11 +64,12 @@ class Setup {
 	/**
 	 * @param SystemConfig $config
 	 * @param IniGetWrapper $iniWrapper
+	 * @param IL10N $l10n
 	 * @param Defaults $defaults
 	 * @param ILogger $logger
 	 * @param ISecureRandom $random
 	 */
-	function __construct(SystemConfig $config,
+	public function __construct(SystemConfig $config,
 						 IniGetWrapper $iniWrapper,
 						 IL10N $l10n,
 						 Defaults $defaults,
@@ -364,8 +366,25 @@ class Setup {
 			$group =\OC::$server->getGroupManager()->createGroup('admin');
 			$group->addUser($user);
 
-			//guess what this does
+			// Install shipped apps and specified app bundles
 			Installer::installShippedApps();
+			$installer = new Installer(
+				\OC::$server->getAppFetcher(),
+				\OC::$server->getAppManager(),
+				\OC::$server->getHTTPClientService(),
+				\OC::$server->getTempManager(),
+				\OC::$server->getLogger(),
+				\OC::$server->getConfig()
+			);
+			foreach($options['bundle'] as $bundle) {
+				try {
+					$bundle = (new BundleFetcher(\OC::$server->getL10N('lib')))->getBundleByIdentifier($bundle);
+					$installer->installAppBundle($bundle);
+				} catch (Exception $e) {
+					// TODO: Catch error. This is just for debugging :-)
+					throw $e;
+				}
+			}
 
 			// create empty file in data dir, so we can later find
 			// out that this is indeed an ownCloud data directory

@@ -3,6 +3,10 @@ script('core', [
 	'jquery-showpassword',
 	'installation'
 ]);
+
+/** @var array $_ */
+/** @var \OC\App\AppStore\Bundles\Bundle[] $bundles */
+$bundles = $_['bundles'];
 ?>
 <input type='hidden' id='hasMySQL' value='<?php p($_['hasMySQL']) ?>'>
 <input type='hidden' id='hasSQLite' value='<?php p($_['hasSQLite']) ?>'>
@@ -53,6 +57,27 @@ script('core', [
 			<input type="checkbox" id="show" name="show">
 			<label for="show"></label>
 		</p>
+	</fieldset>
+
+
+	<fieldset>
+		<p class="info"><?php p($l->t( 'Install app bundles' )); ?></p>
+
+		<?php foreach($bundles as $bundle): ?>
+		<span class="app-bundle-toggler">
+			<p style="color: white">
+				<input type="checkbox" name="bundle[]" value="<?php p($bundle->getIdentifier()) ?>" id="<?php p($bundle->getIdentifier()) ?>" />
+				<label for="<?php p($bundle->getIdentifier()) ?>"><?php p($bundle->getName()) ?></label>
+				<img src="<?php print_unescaped(image_path('', 'actions/caret.svg')); ?>" />
+			</p>
+			<p class="hidden" style="color: white;">
+				<?php p($bundle->getDescription()) ?><br/>
+				<small>
+					<?php p($l->t('(Contains the following apps: %s)', [implode(', ', $bundle->getAppIdentifiers())])); ?>
+				</small>
+			</p>
+		</span>
+		<?php endforeach; ?>
 	</fieldset>
 
 	<?php if(!$_['directoryIsSet'] OR !$_['dbIsSet'] OR count($_['errors']) > 0): ?>
